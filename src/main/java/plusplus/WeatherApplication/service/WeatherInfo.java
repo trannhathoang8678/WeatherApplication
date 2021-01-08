@@ -3,11 +3,13 @@ package plusplus.WeatherApplication.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import plusplus.WeatherApplication.config.JpaConfig;
+import plusplus.WeatherApplication.entity.WeatherOfDay;
+import plusplus.WeatherApplication.entity.WeatherOfHour;
 
-import java.sql.Date;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
+import java.time.LocalDateTime;
+import java.util.LinkedList;
+import java.util.List;
 
 @Service
 public class WeatherInfo {
@@ -284,6 +286,51 @@ public class WeatherInfo {
             e.printStackTrace();
             System.out.println("check is relationshipID exist failed");
             return false;
+        }
+    }
+    public List<WeatherOfDay> getWeatherOfDays(Date fromDate,Date toDate,String place) {
+        List<WeatherOfDay> weatherOfDays = new LinkedList<>();
+        WeatherOfDay weatherOfDay;
+        String sql = "SELECT * FROM WEATHER_DAY WHERE date >='" + fromDate + "' AND date <= '" + toDate + "' AND place = '" + place +"' ;";
+        try (Statement statement = jpaConfig.getConnection().createStatement();) {
+            ResultSet getWeather = statement.executeQuery(sql);
+            while (getWeather.next())
+            {
+                weatherOfDay = new WeatherOfDay(getWeather.getInt(1),getWeather.getDate(2),getWeather.getString(3),getWeather.getInt(4),
+                        getWeather.getInt(5),getWeather.getString(6));
+                weatherOfDays.add(weatherOfDay);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        finally {
+            return  weatherOfDays;
+        }
+    }
+    public List<WeatherOfHour> getWeatherForecastHours( String place) {
+        List<WeatherOfHour> weatherOfHours = new LinkedList<>();
+        WeatherOfHour weatherOfHour;
+        LocalDateTime now = LocalDateTime.now();
+        Date currentDate = new Date(new java.util.Date().getTime());
+        Date tomorrow = new Date(System.currentTimeMillis()+24*60*60*1000);
+        int currenthour = now.getHour();
+        String sql = "SELECT date,time,place,max_degree,min_degree,h.symbol_url,wind_speed,wind_direction,humidity" +
+                " FROM WEATHER_DAY d JOIN DAY_HOUR dh ON d.id = dh.DAY_id JOIN WEATHER_HOUR h ON " +
+                " dh.HOUR_id = h.id WHERE (date ='" + currentDate + "' AND time >= " + currenthour + ") OR (date = '"
+                + tomorrow +"AND time <=" + currenthour + ");";
+        try (Statement statement = jpaConfig.getConnection().createStatement();) {
+            ResultSet getWeather = statement.executeQuery(sql);
+            while (getWeather.next())
+            {
+                weatherOfHour = new WeatherOfHour(getWeather.getDate(1),getWeather.getInt(2),getWeather.getString(3),getWeather.getInt(4)
+                ,getWeather.getInt(5),getWeather.getString(6),getWeather.getFloat(7),getWeather.getString(8),getWeather.getInt(9));
+                weatherOfHours.add(weatherOfHour);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        finally {
+            return  weatherOfHours;
         }
     }
 }

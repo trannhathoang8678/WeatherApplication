@@ -13,6 +13,7 @@ import java.sql.Date;
 public class WeatherOfDay {
     private int id;
     private Date date;
+    private String place;
     private int maxDegree,minDegree;
     private String symbolUrl;
 }
