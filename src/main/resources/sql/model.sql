@@ -5,10 +5,11 @@ USE `weatherdb` ;
 
 CREATE TABLE IF NOT EXISTS `WEATHER_DAY` (
   `id` INT NOT NULL AUTO_INCREMENT,
-  `date` DATE NULL,
-  `place` VARCHAR(45) NULL,
+  `date` DATE NOT NULL,
+  `place` VARCHAR(45) NOT NULL,
   `max_degree` INT NULL,
   `min_degree` INT NULL,
+  `symbol_url` VARCHAR(45) NULL,
   PRIMARY KEY (`id`))
 ENGINE = InnoDB;
 
@@ -17,7 +18,7 @@ CREATE TABLE IF NOT EXISTS `WEATHER_HOUR` (
   `wind_speed` FLOAT NULL,
   `wind_direction` VARCHAR(20) NULL,
   `symbol_url` VARCHAR(45) NULL,
-  `humidity` VARCHAR(45) NULL,
+  `humidity` INT NULL,
   PRIMARY KEY (`id`))
 ENGINE = InnoDB;
 
@@ -63,5 +64,3 @@ CREATE TABLE IF NOT EXISTS `DISPLAY` (
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
-
-
