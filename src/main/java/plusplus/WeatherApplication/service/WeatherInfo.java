@@ -34,6 +34,7 @@ public class WeatherInfo {
 
     public boolean verifyWeatherOfDay(Date date, String place) {
         String sql = "SELECT 'id' FROM WEATHER_DAY WHERE date ='" + date + "' AND place='" + place + "';";
+        //System.out.println(sql);
         try (Statement statement = jpaConfig.getConnection().createStatement();) {
             ResultSet getIDHaveSameName = statement.executeQuery(sql);
             if (getIDHaveSameName.next()) {
@@ -283,7 +284,7 @@ public class WeatherInfo {
         WeatherOfDay weatherOfDay;
         Date fromDate = new Date(new java.util.Date().getTime());
         Date nextWeek = new Date(System.currentTimeMillis() + 7 * 24 * 60 * 60 * 1000);
-        String sql = "SELECT * FROM WEATHER_DAY WHERE date >='" + fromDate + "' AND date <= '" + nextWeek + "' AND place = '" + place + "' ;";
+        String sql = "SELECT * FROM WEATHER_DAY WHERE date >='" + fromDate + "' AND date <= '" + nextWeek + "' AND place = '" + place + "' ORDER BY date ASC;";
         try (Statement statement = jpaConfig.getConnection().createStatement();) {
             ResultSet getWeather = statement.executeQuery(sql);
             while (getWeather.next()) {
@@ -303,7 +304,7 @@ public class WeatherInfo {
         WeatherOfDay weatherOfDay = null;
         Date currentDate = new Date(new java.util.Date().getTime());
         String sql = "SELECT * FROM WEATHER_DAY WHERE `date` = '" + currentDate + "' AND place = '" + place + "' ;";
-        //System.out.println(sql);
+        // System.out.println(sql);
         try (Statement statement = jpaConfig.getConnection().createStatement();) {
             ResultSet getWeather = statement.executeQuery(sql);
             if (getWeather.next()) {
@@ -328,8 +329,9 @@ public class WeatherInfo {
         String sql = "SELECT date,time,place,max_degree,min_degree,h.symbol_url,wind_speed,wind_direction,humidity" +
                 " FROM WEATHER_DAY d JOIN `DAY_HOUR` dh ON d.id = dh.DAY_id JOIN WEATHER_HOUR h ON " +
                 " dh.HOUR_id = h.id WHERE ((date ='" + currentDate + "' AND time >= " + currenthour + ") OR (date = '"
-                + tomorrow + "' AND time <=" + currenthour + ")) AND place='" + place + "';";
-           //  System.out.println(sql);
+                + tomorrow + "' AND time <=" + currenthour + ")) AND place='" + place + "' " +
+                "ORDER BY date,time ASC;";
+        //  System.out.println(sql);
         try (Statement statement = jpaConfig.getConnection().createStatement();) {
             ResultSet getWeather = statement.executeQuery(sql);
             while (getWeather.next()) {
