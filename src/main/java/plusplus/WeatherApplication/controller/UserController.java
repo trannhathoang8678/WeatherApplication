@@ -22,12 +22,13 @@ public class UserController {
     WeatherInfo weatherInfo;
 
     @GetMapping(value = "/{id}")
-    public List<WeatherOfDay> showWeatherOfDaysRegistered(@PathVariable int id) {
+    public String showWeatherOfDaysRegistered(@PathVariable int id,Model model) {
         List<String> places = userInfo.getPlacesOfUser(id);
         List<WeatherOfDay> weatherOfDays = new LinkedList<>();
         for (String place : places)
             weatherOfDays.addAll(weatherInfo.getWeatherOfDays(place));
-        return weatherOfDays;
+        model.addAttribute("weatherOfDays",weatherOfDays);
+        return "homePage";
     }
 
     @GetMapping(value ={"/homePage"})
@@ -43,7 +44,9 @@ public class UserController {
 
     @GetMapping
     public String showWeatherOfHour(@RequestParam String place,Model model) {
-        List<WeatherOfHour> weatherOfHours = weatherInfo.getWeatherForecastHours(place);
+        model.addAttribute("weatherOfHours",weatherInfo.getWeatherForecastHours(place));
+        model.addAttribute("weatherOfDays",weatherInfo.getWeatherOfDays(place));
+        model.addAttribute("place",place);
         return "weatherInDetailed";
     }
 
