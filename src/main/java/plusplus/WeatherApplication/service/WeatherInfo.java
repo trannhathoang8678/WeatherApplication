@@ -296,6 +296,27 @@ public class WeatherInfo {
             return  weatherOfDays;
         }
     }
+    public WeatherOfDay getWeatherOfDay(String place) {
+
+        WeatherOfDay weatherOfDay=null;
+        Date currentDate = new Date(new java.util.Date().getTime());
+        String sql = "SELECT * FROM WEATHER_DAY WHERE `date` = '" + currentDate + "' AND place = '" + place +"' ;";
+        //System.out.println(sql);
+        try (Statement statement = jpaConfig.getConnection().createStatement();) {
+            ResultSet getWeather = statement.executeQuery(sql);
+            if (getWeather.next())
+            {
+                weatherOfDay = new WeatherOfDay(getWeather.getInt(1),getWeather.getDate(2),getWeather.getString(3),getWeather.getInt(4),
+                        getWeather.getInt(5),getWeather.getString(6));
+
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        finally {
+            return  weatherOfDay;
+        }
+    }
     public List<WeatherOfHour> getWeatherForecastHours( String place) {
         List<WeatherOfHour> weatherOfHours = new LinkedList<>();
         WeatherOfHour weatherOfHour;

@@ -192,8 +192,7 @@ public class UserInfo {
     }
 
 
-
-    public List<String> getPlaces(int userID) {
+    public List<String> getPlacesOfUser(int userID) {
         List<String> places = new LinkedList<>();
         String place;
         String sql = "SELECT place FROM DISPLAY WHERE USER_ID =" + userID + " ORDER BY rank_display ASC;";
@@ -204,6 +203,23 @@ public class UserInfo {
                 places.add(place);
             }
 
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            return places;
+        }
+    }
+
+    public List<String> getAllPlaces() {
+        List<String> places = new LinkedList<>();
+        String place;
+        String sql = "SELECT place FROM WEATHER_DAY GROUP BY place;";
+        try (Statement statement = jpaConfig.getConnection().createStatement();) {
+            ResultSet getPlace = statement.executeQuery(sql);
+            while (getPlace.next()) {
+                place = getPlace.getString(1);
+                places.add(place);
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
