@@ -11,6 +11,14 @@ import java.sql.Date;
 @AllArgsConstructor
 @NoArgsConstructor
 public class WeatherOfDay {
+    public WeatherOfDay(Date date, String place, int maxDegree, int minDegree, String symbolUrl) {
+        this.date = date;
+        this.place = place;
+        this.maxDegree = maxDegree;
+        this.minDegree = minDegree;
+        this.symbolUrl = symbolUrl;
+    }
+
     private int id;
     private Date date;
     private String place;

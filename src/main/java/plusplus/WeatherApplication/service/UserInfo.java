@@ -17,6 +17,7 @@ import java.util.List;
 public class UserInfo {
     @Autowired
     JpaConfig jpaConfig;
+
     public void addUser(String phonenumber) {
         if (!verifyUser(phonenumber)) return;
         String sql = "INSERT INTO USER (phonenumber) VALUE ('" + phonenumber + "');";
@@ -100,9 +101,10 @@ public class UserInfo {
             return false;
         }
     }
-    public void addDisplay(int userID, int weatherID, int rank) {
-        if (!verifyDisplay(userID, weatherID)) return;
-        String sql = "INSERT INTO DISPLAY VALUE (" + userID + "," + weatherID + "," + rank + ");";
+
+    public void addDisplay(int userID, String place, int rank) {
+        if (!verifyDisplay(userID, place)) return;
+        String sql = "INSERT INTO DISPLAY VALUE (" + userID + ",'" + place + "'," + rank + ");";
         try {
             Statement statement = jpaConfig.getConnection().createStatement();
             statement.executeUpdate(sql);
@@ -114,8 +116,8 @@ public class UserInfo {
         }
     }
 
-    public boolean verifyDisplay(int userID, int weatherID) {
-        String sql = "SELECT USER_ID FROM DISPLAY WHERE USER_ID =" + userID + " AND WEATHEAR_id=" + weatherID + ";";
+    public boolean verifyDisplay(int userID, String place) {
+        String sql = "SELECT USER_ID FROM DISPLAY WHERE USER_ID =" + userID + " AND place='" + place + "';";
         try (Statement statement = jpaConfig.getConnection().createStatement();) {
             ResultSet getSameDisplay = statement.executeQuery(sql);
             if (getSameDisplay.next()) {
@@ -133,16 +135,16 @@ public class UserInfo {
         }
     }
 
-    public void updateDisplay(int userID, int weatherID, int rank) {
+    public void updateDisplay(int userID, String place, int rank) {
         //time by year
-        if (!isDisplayExist(userID, weatherID)) {
+        if (!isDisplayExist(userID, place)) {
             return;
         }
-        String sql = "UPDATE DISPLAY SET WEATHEAR_id = " + weatherID;
+        String sql = "UPDATE DISPLAY SET USER_id = " + userID;
 
         if (rank != -1)
-            sql += " ,rank='" + rank + "'";
-        sql += " WHERE USER_ID =" + userID + " AND WEATHEAR_id =" + weatherID + " ;";
+            sql += " ,rank_display='" + rank + "'";
+        sql += " WHERE USER_ID =" + userID + " AND place ='" + place + "' ;";
         try {
             Statement statement = jpaConfig.getConnection().createStatement();
             statement.executeUpdate(sql);
@@ -154,11 +156,11 @@ public class UserInfo {
         }
     }
 
-    public void deleteDisplay(int peopleID, int userID) {
-        if (!isDisplayExist(peopleID, userID)) {
+    public void deleteDisplay(int userID, String place) {
+        if (!isDisplayExist(userID, place)) {
             return;
         }
-        String sql = "DELETE FROM DISPLAY WHERE WEATHEAR_id =" + peopleID + " AND USER_id =" + userID + ";";
+        String sql = "DELETE FROM DISPLAY WHERE USER_id =" + userID + " AND place ='" + place + "';";
         try {
             Statement statement = jpaConfig.getConnection().createStatement();
             statement.executeUpdate(sql);
@@ -170,8 +172,8 @@ public class UserInfo {
         }
     }
 
-    public boolean isDisplayExist(int userID, int weatherID) {
-        String sql = "SELECT 'id' FROM DISPLAY WHERE USER_ID =" + userID + " AND WEATHEAR_id =" + weatherID + ";";
+    public boolean isDisplayExist(int userID, String place) {
+        String sql = "SELECT USER_id FROM DISPLAY WHERE USER_ID =" + userID + " AND place ='" + place + "';";
         try (Statement statement = jpaConfig.getConnection().createStatement();) {
             ResultSet checkID = statement.executeQuery(sql);
             if (checkID.next()) {
@@ -188,26 +190,24 @@ public class UserInfo {
             return false;
         }
     }
-    public List<WeatherOfDay> getWeatherOfDays(int userID) {
-        List<WeatherOfDay> weatherOfDays = new LinkedList<>();
-        WeatherOfDay weatherOfDay;
-        Date currentDate = new Date(new java.util.Date().getTime());
 
-        String sql = "SELECT w.* FROM WEATHER_DAY w JOIN DISPLAY d ON w.id=WEATHER_id JOIN USER u d.USER_id = u.id" +
-                "  WHERE date ='" + currentDate + "' AND USER_id=" + userID+" ;";
+
+
+    public List<String> getPlaces(int userID) {
+        List<String> places = new LinkedList<>();
+        String place;
+        String sql = "SELECT place FROM DISPLAY WHERE USER_ID =" + userID + " ORDER BY rank_display ASC;";
         try (Statement statement = jpaConfig.getConnection().createStatement();) {
-            ResultSet getWeather = statement.executeQuery(sql);
-            while (getWeather.next())
-            {
-                weatherOfDay = new WeatherOfDay(getWeather.getInt(1),getWeather.getDate(2),getWeather.getString(3),getWeather.getInt(4),
-                        getWeather.getInt(5),getWeather.getString(6));
-                weatherOfDays.add(weatherOfDay);
+            ResultSet getPlace = statement.executeQuery(sql);
+            while (getPlace.next()) {
+                place = getPlace.getString(1);
+                places.add(place);
             }
+
         } catch (SQLException e) {
             e.printStackTrace();
-        }
-        finally {
-            return  weatherOfDays;
+        } finally {
+            return places;
         }
     }
 }

@@ -47,20 +47,17 @@ CREATE TABLE IF NOT EXISTS `USER` (
   UNIQUE INDEX `phonenumber_UNIQUE` (`phonenumber` ASC))
 ENGINE = InnoDB;
 
+
 CREATE TABLE IF NOT EXISTS `DISPLAY` (
   `USER_id` INT NOT NULL,
-  `WEATHER_id` INT NOT NULL,
+  `place` VARCHAR(45) NOT NULL,
   `rank_display` INT NOT NULL,
   INDEX `fk_table1_user1_idx` (`USER_id` ASC),
-  INDEX `fk_table1_WEATHER_DAY2_idx` (`WEATHER_id` ASC),
   CONSTRAINT `fk_table1_user1`
     FOREIGN KEY (`USER_id`)
     REFERENCES `USER` (`id`)
     ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `fk_table1_WEATHER_DAY2`
-    FOREIGN KEY (`WEATHER_id`)
-    REFERENCES `WEATHER_DAY` (`id`)
-    ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
+
+

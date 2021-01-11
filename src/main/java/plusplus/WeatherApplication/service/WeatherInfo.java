@@ -18,8 +18,9 @@ public class WeatherInfo {
 
     public void addWeatherOfDay(Date date, String place, int maxDegree, int minDegree, String symbolUrl) {
         if (!verifyWeatherOfDay(date, place)) return;
-        String sql = "INSERT INTO WEATHER_DAY (date,place,max_degree,min_degree,symnolUrl) VALUE ('" + date + "','" +
+        String sql = "INSERT INTO WEATHER_DAY (date,place,max_degree,min_degree,symbol_url) VALUE ('" + date + "','" +
                 place + "'," + maxDegree + "," + minDegree + ",'" + symbolUrl + "');";
+       // System.out.println(sql);
         try {
             Statement statement = jpaConfig.getConnection().createStatement();
             statement.executeUpdate(sql);
@@ -113,8 +114,9 @@ public class WeatherInfo {
     }
     public void addWeatherOfHour(Float windSpeed, String windDirection, String symbolUrl, int humidity) {
         if (!verifyWeatherOfHour(windSpeed, windDirection,symbolUrl,humidity)) return;
-        String sql = "INSERT INTO WEATHER_HOUR (wind_speed,wind_direction,symbol_url,humidity) VALUE ('" + windSpeed + "','" +
-                windDirection + "','" + windDirection + "','" + symbolUrl + "','" + humidity + "');";
+        String sql = "INSERT INTO WEATHER_HOUR (wind_speed,wind_direction,symbol_url,humidity) VALUE (" + windSpeed + ",'" +
+                 windDirection + "','" + symbolUrl + "','" + humidity + "');";
+       // System.out.println(sql);
         try {
             Statement statement = jpaConfig.getConnection().createStatement();
             statement.executeUpdate(sql);
@@ -127,7 +129,7 @@ public class WeatherInfo {
     }
 
     public boolean verifyWeatherOfHour(Float windSpeed, String windDirection, String symbolUrl, int humidity) {
-        String sql = "SELECT 'id' FROM WEATHER_HOUR WHERE wind_speed ='" + windSpeed + "' AND wind_diretion='" + windDirection + "' AND symbol_url='" + symbolUrl +
+        String sql = "SELECT 'id' FROM WEATHER_HOUR WHERE wind_speed ='" + windSpeed + "' AND wind_direction='" + windDirection + "' AND symbol_url='" + symbolUrl +
                 "' AND humidity='" + humidity + "';";
         try (Statement statement = jpaConfig.getConnection().createStatement();) {
             ResultSet getIDHaveSameName = statement.executeQuery(sql);
@@ -152,7 +154,7 @@ public class WeatherInfo {
         }
         String sql = "UPDATE WEATHER_HOUR SET id = " + id;
         if (windSpeed != -1)
-            sql += " ,windspeed='" + windSpeed + "'";
+            sql += " ,wind_speed='" + windSpeed + "'";
         if (windDirection != null)
             sql += " ,wind_diretion='" + windDirection + "'";
         if (humidity != -1)
@@ -205,9 +207,9 @@ public class WeatherInfo {
             return false;
         }
     }
-    public void addDayHourRelationship(String name) {
-        if (!verifyDayHourRelationship(name)) return;
-        String sql = "INSERT INTO DAY_HOUR (name) VALUE ('" + name + "');";
+    public void addDayHourRelationship(int dayID,int hourID,int time) {
+        if (!verifyDayHourRelationship(dayID,hourID,time)) return;
+        String sql = "INSERT INTO `DAY_HOUR` VALUE (" + dayID + "," + hourID + "," + time +");";
         try {
             Statement statement = jpaConfig.getConnection().createStatement();
             statement.executeUpdate(sql);
@@ -219,8 +221,8 @@ public class WeatherInfo {
         }
     }
 
-    public boolean verifyDayHourRelationship(String name) {
-        String sql = "SELECT 'id' FROM DAY_HOUR WHERE name ='" + name + "';";
+    public boolean verifyDayHourRelationship(int dayID,int hourID,int time) {
+        String sql = "SELECT 'DAY_ID' FROM `DAY_HOUR` WHERE DAY_ID =" + dayID + " AND HOUR_ID = " + hourID +" AND time =" + time + " ;";
         try (Statement statement = jpaConfig.getConnection().createStatement();) {
             ResultSet getIDHaveSameName = statement.executeQuery(sql);
             if (getIDHaveSameName.next()) {
@@ -238,27 +240,12 @@ public class WeatherInfo {
         }
     }
 
-    public void updateDayHourRelationship(int id, String name) {
-        if (!isRelationshipIDexist(id)) {
-            return;
-        }
-        String sql = "UPDATE DAY_HOUR SET name = '" + name + "' WHERE id = " + id + " ;";
-        try {
-            Statement statement = jpaConfig.getConnection().createStatement();
-            statement.executeUpdate(sql);
-            System.out.println("Update relationship succefully");
-            statement.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
-            System.out.println("Update relationship failed");
-        }
-    }
 
-    public void deleteDayHourRelationship(int id) {
-        if (!isRelationshipIDexist(id)) {
+    public void deleteDayHourRelationship(int dayID,int hourID,int time) {
+        if (!isRelationshipIDexist(dayID,hourID,time)) {
             return;
         }
-        String sql = "DELETE FROM DAY_HOUR WHERE id = " + id + " ;";
+        String sql = "DELETE FROM `DAY_HOUR` WHERE DAY_id = " + dayID + " AND HOUR_id =" + hourID +" AND time =" + time + " ;";
         try {
             Statement statement = jpaConfig.getConnection().createStatement();
             statement.executeUpdate(sql);
@@ -270,8 +257,8 @@ public class WeatherInfo {
         }
     }
 
-    public boolean isRelationshipIDexist(int id) {
-        String sql = "SELECT 'id' FROM DAY_HOUR WHERE id ='" + id + "';";
+    public boolean isRelationshipIDexist(int dayID,int hourID,int time) {
+        String sql = "SELECT 'id' FROM `DAY_HOUR` WHERE DAY_id = " + dayID + " AND HOUR_id =" + hourID +" AND time =" + time + " ;";
         try (Statement statement = jpaConfig.getConnection().createStatement();) {
             ResultSet checkID = statement.executeQuery(sql);
             if (checkID.next()) {
@@ -288,10 +275,12 @@ public class WeatherInfo {
             return false;
         }
     }
-    public List<WeatherOfDay> getWeatherOfDays(Date fromDate,Date toDate,String place) {
+    public List<WeatherOfDay> getWeatherOfDays(String place) {
         List<WeatherOfDay> weatherOfDays = new LinkedList<>();
         WeatherOfDay weatherOfDay;
-        String sql = "SELECT * FROM WEATHER_DAY WHERE date >='" + fromDate + "' AND date <= '" + toDate + "' AND place = '" + place +"' ;";
+        Date fromDate = new Date(new java.util.Date().getTime());
+        Date nextWeek = new Date(System.currentTimeMillis()+7*24*60*60*1000);
+        String sql = "SELECT * FROM WEATHER_DAY WHERE date >='" + fromDate + "' AND date <= '" + nextWeek + "' AND place = '" + place +"' ;";
         try (Statement statement = jpaConfig.getConnection().createStatement();) {
             ResultSet getWeather = statement.executeQuery(sql);
             while (getWeather.next())
@@ -315,9 +304,10 @@ public class WeatherInfo {
         Date tomorrow = new Date(System.currentTimeMillis()+24*60*60*1000);
         int currenthour = now.getHour();
         String sql = "SELECT date,time,place,max_degree,min_degree,h.symbol_url,wind_speed,wind_direction,humidity" +
-                " FROM WEATHER_DAY d JOIN DAY_HOUR dh ON d.id = dh.DAY_id JOIN WEATHER_HOUR h ON " +
+                " FROM WEATHER_DAY d JOIN `DAY_HOUR` dh ON d.id = dh.DAY_id JOIN WEATHER_HOUR h ON " +
                 " dh.HOUR_id = h.id WHERE (date ='" + currentDate + "' AND time >= " + currenthour + ") OR (date = '"
-                + tomorrow +"AND time <=" + currenthour + ");";
+                + tomorrow +"' AND time <=" + currenthour + ");";
+   //     System.out.println(sql);
         try (Statement statement = jpaConfig.getConnection().createStatement();) {
             ResultSet getWeather = statement.executeQuery(sql);
             while (getWeather.next())
