@@ -36,6 +36,7 @@ public class UserController {
         List<String> places = userInfo.getAllPlaces();
      //   System.out.println(places.size());
         List<WeatherOfDay> weatherOfDays = new LinkedList<>();
+
         for (String place : places)
             weatherOfDays.add(weatherInfo.getWeatherOfDay(place));
         model.addAttribute("weatherOfDays",weatherOfDays);
