@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>RavenForecast</title>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/style.css}"/>
+</head>
+<body>
+<main>
+    <div id="today section">
+        <table>
+            <caption>
+                <h2>Today weather</h2>
+            </caption>
+            <thead>
+            <tr>
+                <th rowspan="2">Province</th>
+                <th rowspan="2">Highest temperature</th>
+                <th rowspan="2">Lowest temperature</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="weatherOfDay:${weatherOfDays}">
+                <td ><a th:href="@{/user(place=${weatherOfDay.place})}" th:text="${weatherOfDay.place}" target="_blank">...</a></td>
+                <td  th:text="${weatherOfDay.maxDegree}">...</td>
+                <td th:text="${weatherOfDay.minDegree}">...</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</main>
+</body>
+</html>

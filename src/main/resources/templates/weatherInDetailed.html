@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title th:text="${place}">...</title>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/style.css}" />
+  </head>
+  <body>
+    <main>
+      <div id="24h section">
+        <table>
+          <caption>
+            <h2>The next 24 hours forecast</h2>
+          </caption>
+          <thead>
+            <tr>
+              <th rowspan="2">Date</th>
+              <th rowspan="2">Hour</th>
+              <th rowspan="2">Highest temperature</th>
+              <th rowspan="2">Lowest temperature</th>
+              <th rowspan="2">Wind speed</th>
+              <th rowspan="2">Wind direction</th>
+              <th rowspan="2">Humidity</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr th:each="weatherOfHour:${weatherOfHours}">
+              <td th:text="${weatherOfHour.date}">...</td>
+              <td th:text="${weatherOfHour.hour}">...</td>
+              <td th:text="${weatherOfHour.maxDegree}">...</td>
+              <td th:text="${weatherOfHour.minDegree}">...</td>
+              <td th:text="${weatherOfHour.windSpeed}">...</td>
+              <td th:text="${weatherOfHour.windDirection}">...</td>
+              <td th:text="${weatherOfHour.humidity}">...</td>
+            </tr>
+          </tbody>
+        </table>
+        <br /><br />
+      </div>
+      <div id="7days section">
+        <table>
+            <caption>
+                <h2>The next 7 days forecast</h2>
+            </caption>
+            <thead>
+            <tr>
+                <th rowspan="2">Date</th>
+                <th rowspan="2">Highest temperature</th>
+                <th rowspan="2">Lowest temperature</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="weatherOfDay:${weatherOfDays}">
+                <td th:text="${weatherOfDay.date}">...</td>
+                <td th:text="${weatherOfDay.maxDegree}">...</td>
+                <td th:text="${weatherOfDay.minDegree}">...</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    </main>
+  </body>
+</html>
